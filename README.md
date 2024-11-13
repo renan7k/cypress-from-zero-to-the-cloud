@@ -28,6 +28,10 @@ Run `npm run cy:open` to open the Cypress App and run the tests in interactive m
 
 Or, run `npm run cy:open:mobile` to open the Cypress App and run the tests in interactive mode in a mobile viewport.
 
+### Cypress Cloud
+
+Run `npm run test:cloud`  to execute test and generate report at the cypressCloud.
+
 ## Support this project
 
 If you want to support this project, leave a ⭐.
