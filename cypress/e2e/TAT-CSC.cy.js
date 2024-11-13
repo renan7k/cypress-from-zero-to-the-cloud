@@ -8,6 +8,8 @@ describe('TAT - Customer Service Center', () => {
   })
 
   it('fills in the required fields and submits ther form', () => {
+    cy.clock() //Adicionado posteriormente para travar o relógio do browser, e conseguirmos avançar os segundos em que a msg fica visível
+
     const longText = 'Internet não está conectando,Internet não está conectando,Internet não está conectando,Internet não está conectando,Internet não está conectando,Internet não está conectando,Internet não está conectando,Internet não está conectando,Internet não está conectando,Internet não está conectando'
 
     cy.get('#firstName').type('Claudenor')
@@ -20,9 +22,16 @@ describe('TAT - Customer Service Center', () => {
     cy.get('.success')
       .should('be.visible')
       .and('contain', 'Message successfully sent.')
+
+    cy.tick(3000)  //Avança o tempo em 3 segundos, tempo em que a msg fica visível
+
+    cy.get('.success').should('not.be.visible')
   })
 
   it('displays an error message when submitting the form with an email with invalid formatting', () => {
+    cy.clock()//Adicionado para travar o relógio do navegador, e conseguirmos avançar os segundos em que a msg fica visível
+
+
     cy.get('#firstName').type('Claudenor')
     cy.get('[name=lastName]').type('Dantas')
     cy.get('.field [name=email]').type('cdoutlook.com')
@@ -33,6 +42,11 @@ describe('TAT - Customer Service Center', () => {
     cy.get('.error')
       .should('be.visible')
       .and('contain', 'Validate the required fields!')
+
+    cy.tick(3000)  //Avança o tempo em 3 segundos, tempo em que a msg fica visível
+
+    cy.get('.error').should('not.be.visible')
+    
   });
 
   it('validates that the phone input field only accepts numbers', () => {
@@ -85,8 +99,13 @@ describe('TAT - Customer Service Center', () => {
   });
 
   it('successfully submits the form using a custom command', () => {
+    cy.clock()
+
     cy.fillMandatoryFieldsAndSubmit() // Comando customizado, configurado no arquivo commands, e importado no arquivo index.js
     cy.get('.success').should('be.visible')
+
+    cy.tick(3000)
+    cy.get('.success').should('not.be.visible')
   });
 
 
@@ -168,5 +187,46 @@ describe('TAT - Customer Service Center', () => {
     cy.contains('h1', 'TAT CSC - Privacy Policy').should('be.visible')
     cy.contains('Talking About Testing').should('be.visible')
   });
+
+  
+  // invoke(show) Para forçar a exibição de um elemento na página, e invoke(hide) para nn exibir o elemento
+  it('displays and hides the success and error messages using .invoke', () => {
+    cy.get('.success')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Message successfully sent.')
+      .invoke('hide')
+      .should('not.be.visible')
+    cy.get('.error')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Validate the required fields!')
+      .invoke('hide')
+      .should('not.be.visible')
+  })
+  it('fills in the text area field using the invoke command', () => {
+    cy.get('#open-text-area')
+      .invoke('val', 'some text') //similar a zerar o delay de digitar
+      .should('have.value', 'some text')
+  })
+
+  it('makes an HTTP request', () => {
+    cy.request('GET','https://tat-csc.s3.sa-east-1.amazonaws.com/index.html')
+      .as('getRequest')
+      .its('status')
+      .should('be.equal', 200)
+    
+    cy.get('@getRequest')
+      .its('statusText')
+      .should('be.equal', 'OK')
+
+
+    cy.get('@getRequest')
+      .its('body')
+      .should('include', 'TAT CSC')
+
+  })
 
 })
